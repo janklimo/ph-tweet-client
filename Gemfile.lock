@@ -3,6 +3,7 @@ GEM
   specs:
     addressable (2.4.0)
     buftok (0.2.0)
+    diff-lcs (1.2.5)
     domain_name (0.5.20160615)
       unf (>= 0.0.5, < 1.0.0)
     equalizer (0.0.10)
@@ -17,12 +18,28 @@ GEM
       domain_name (~> 0.5)
     http-form_data (1.0.1)
     http_parser.rb (0.6.0)
+    httparty (0.14.0)
+      multi_xml (>= 0.5.2)
     imgkit (1.6.1)
     json (1.8.3)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
+    multi_xml (0.5.5)
     multipart-post (2.0.0)
     naught (1.1.0)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+    rspec-core (3.5.2)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-mocks (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
     simple_oauth (0.3.1)
     thread_safe (0.3.5)
     twitter (5.16.0)
@@ -45,9 +62,14 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  httparty
   imgkit
+  rspec
   twitter
   wkhtmltoimage-binary
+
+RUBY VERSION
+   ruby 2.2.2p95
 
 BUNDLED WITH
    1.12.5
