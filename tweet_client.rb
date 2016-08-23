@@ -26,9 +26,13 @@ end
 
 def summary_text(makers_array)
   date_str = (Date.today - 1).strftime("%b %-d, %Y")
-  handles = makers_array.map{ |m| "@#{m}" }.join(' ')
-  str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join(' ')} " \
-    "Products by #{handles} #{ACTIONS.sample}"
+  # handles = makers_array.map{ |m| "@#{m}" }.join(' ')
+  # str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join(' ')} " \
+  #   "Products by #{handles} #{ACTIONS.sample}"
+  # TEST RUN
+  handles = ['somedude', 'someotherdude', 'anotherone'].join(' ')
+  str = "Some examples of #{date_str} on some site #{THINGS.sample(2).join(' ')} " \
+    "Things by #{handles} #{ACTIONS.sample}"
   truncate(str, 110)
 end
 
@@ -53,7 +57,16 @@ def run
   client.update_with_media(summary_text(entry_data['makers']), rank_1_img)
 
   entry_data['posts'].each do |post|
-
+    words = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
+             'Dayum', 'Like a boss']
+    rank = post['rank']
+    link = "https://something.herokuapp.com/things-that-come-in-a-long-url"
+    text = "#{words.sample}! This is stuff ##{rank} #{THINGS.sample(2).join(' ')} " \
+      "#{link}"
+    image_kit = IMGKit.new("https://ph-tweet-server.herokuapp.com/charts/#{date}?rank=#{rank}",
+                           zoom: 2, width: 2048, height: 1024)
+    img = image_kit.to_file("rank_#{rank}_img.jpg")
+    client.update_with_media(text, img)
   end
 end
 
