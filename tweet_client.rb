@@ -1,40 +1,14 @@
 #!/usr/bin/env ruby
 
+require 'bundler/setup'
+require 'twitter'
 require 'httparty'
 require 'imgkit'
-require 'twitter'
+require_relative 'utils'
 
 # TODO:
-# send tweets to makers and hunters
-# add hunters to list
-# add makers to list
 # update Twitter description
-
-ACTIONS = ['👍', '👏']
-THINGS = ['🌟', '🏆', '🏅', '💯', '🚀']
-DRINKS = ['🍾', '🍻']
-
-# borrowing this from Rails :)
-def truncate(str, truncate_at, options = {})
-  return str unless str.length > truncate_at
-
-  options[:separator] ||= ' '
-  stop = str.rindex(options[:separator], truncate_at) || truncate_at
-
-  "#{str[0, stop]}"
-end
-
-def summary_text(makers_array)
-  date_str = (Date.today - 1).strftime("%b %-d, %Y")
-  # handles = makers_array.map{ |m| "@#{m}" }.join(' ')
-  # str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join(' ')} " \
-  #   "Products by #{handles} #{ACTIONS.sample}"
-  # TEST RUN
-  handles = ['somedude', 'someotherdude', 'anotherone'].join(' ')
-  str = "Some examples of #{date_str} on some site #{THINGS.sample(2).join(' ')} " \
-    "Things by #{handles} #{ACTIONS.sample}"
-  truncate(str, 110)
-end
+# show table on server
 
 def run
   client = Twitter::REST::Client.new do |config|
@@ -44,29 +18,41 @@ def run
     config.access_token_secret = ENV['TWITTER_ACCESS_SECRET']
   end
 
+  # TODO
+  # add hunters and makers to list
+  # p client.list_members('top-makers', count: 5000)
+  #   .to_h[:users].map { |u| u[:screen_name] }
+  # client.add_list_members('top-makers', ['janklimo'])
+
   date = (Date.today - 1).to_s
   response =
     HTTParty.get("https://ph-tweet-server.herokuapp.com/charts/#{date}/data")
   entry_data = JSON.parse(response.body)
 
-  image_kit = IMGKit.new("https://ph-tweet-server.herokuapp.com/charts/#{date}",
-                         zoom: 2, width: 2048, height: 1024)
-  rank_1_img = image_kit.to_file('rank_1_img.jpg')
-
-  # Summary tweet
-  client.update_with_media(summary_text(entry_data['makers']), rank_1_img)
-
   entry_data['posts'].each do |post|
-    words = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
-             'Dayum', 'Like a boss']
     rank = post['rank']
-    link = "https://something.herokuapp.com/things-that-come-in-a-long-url"
-    text = "#{words.sample}! This is stuff ##{rank} #{THINGS.sample(2).join(' ')} " \
-      "#{link}"
-    image_kit = IMGKit.new("https://ph-tweet-server.herokuapp.com/charts/#{date}?rank=#{rank}",
-                           zoom: 2, width: 2048, height: 1024)
+    hunter = post['hunter']
+    makers = post['makers']
+    url = post['url']
+
+    image_kit = IMGKit.new(
+      "https://ph-tweet-server.herokuapp.com/charts/#{date}?rank=#{rank}",
+       zoom: 2, width: 2048, height: 1024
+    )
     img = image_kit.to_file("rank_#{rank}_img.jpg")
-    client.update_with_media(text, img)
+
+    # hunter tweet
+    client.update_with_media(hunter_text(hunter, rank, url), img)
+
+    # makers tweet
+    unless makers.empty?
+      client.update_with_media(makers_text(makers, rank, url), img)
+    end
+
+    # Summary tweet
+    if rank == 1
+      client.update_with_media(summary_text(entry_data['makers']), img)
+    end
   end
 end
 

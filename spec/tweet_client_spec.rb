@@ -1,31 +1,5 @@
 require 'spec_helper'
-require 'rspec/mocks'
-require 'rspec/expectations'
 require_relative '../tweet_client'
-
-describe '#truncate' do
-  it 'returns string if it is shorter than truncate_at' do
-    expect(truncate('My string', 20)).to eq('My string')
-  end
-  it 'truncates a long string respecting spaces' do
-    expect(truncate('One Two Three Four', 10)).to eq('One Two')
-  end
-  it 'can handle emoji' do
-    expect(truncate('👍👏 more text', 10)).to eq '👍👏 more'
-  end
-end
-
-describe '#summary_text' do
-  it 'renders the text' do
-    expect(summary_text(['a', 'b']).length).to be <= 115
-  end
-  it 'truncates a really long list of makers' do
-    makers = (1..15).map { |i| "maker#{i}" }
-    expect(summary_text(makers).length).to be <= 110
-    expect(summary_text(makers)).to include Time.now.year.to_s
-    expect(summary_text(makers)).to include '@maker2'
-  end
-end
 
 describe '#run' do
   before do
@@ -35,10 +9,12 @@ describe '#run' do
       .and_return(double(body: ENTRY_DATA))
     allow_any_instance_of(Twitter::REST::Client)
       .to receive(:update_with_media)
-    allow(IMGKit).to receive(:new)
-      .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}",
-           zoom: 2, width: 2048, height: 1024)
-             .and_return(double(to_file: 'rank_1_img'))
+    (1..5).each do |i|
+      allow(IMGKit).to receive(:new)
+        .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}?rank=#{i}",
+      zoom: 2, width: 2048, height: 1024)
+        .and_return(double(to_file: "rank_#{i}_img"))
+    end
   end
   it 'initiates twitter client' do
     expect(Twitter::REST::Client).to receive(:new).and_call_original
@@ -49,10 +25,57 @@ describe '#run' do
       .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}/data")
     run
   end
-  it 'sends the summary tweet' do
+  it 'sends the summary tweet just once' do
     expect_any_instance_of(Twitter::REST::Client)
       .to receive(:update_with_media)
-      .with(/@RyanKennedy/, 'rank_1_img')
+      .with(/#TopHunts.*@producthunt.*RyanKennedy/, 'rank_1_img')
+      .exactly(:once)
+    run
+  end
+  it 'sends tweets to hunters' do
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@nagra.*for hunting the #1 product/, 'rank_1_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@iWozzy.*for hunting the #2 product/, 'rank_2_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@bentossel.*for hunting the #3 product/, 'rank_3_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@v_ignatyev.*for hunting the #4 product/, 'rank_4_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@arunpattnaik.*for hunting the #5 product/, 'rank_5_img')
+      .exactly(:once)
+    run
+  end
+  it 'sends tweets to makers' do
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@adrianeholter.*for making the #1 product/, 'rank_1_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@Ryan.*nainish.*for making the #2 product/, 'rank_2_img')
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@seannie.*bevmer.*for making the #3 product/, 'rank_3_img')
+      .exactly(:once)
+    # no makers - no tweet
+    expect_any_instance_of(Twitter::REST::Client)
+      .not_to receive(:update_with_media)
+      .with(/for making the #3 product/, 'rank_4_img')
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:update_with_media)
+      .with(/@photo.*for making the #5 product/, 'rank_5_img')
+      .exactly(:once)
     run
   end
 end
@@ -74,7 +97,6 @@ ENTRY_DATA = <<JSON
       "nagra__",
       "iWozzy",
       "bentossell",
-      "v_ignatyev",
       "arunpattnaik"
    ],
    "posts":[
@@ -119,9 +141,7 @@ ENTRY_DATA = <<JSON
       {
          "id":9,
          "hunter":"v_ignatyev",
-         "makers":[
-            "v_ignatyev"
-         ],
+         "makers":[],
          "url":"https://www.producthunt.com/tech/crx-extractor?utm_campaign=producthunt-api\u0026utm_medium=api\u0026utm_source=Application%3A+Top+Hunts+Daily+%28ID%3A+3237%29",
          "rank":4
       }
