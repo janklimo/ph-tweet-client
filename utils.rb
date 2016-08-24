@@ -22,6 +22,15 @@ def date_str
   (Date.today - 1).strftime("%b %-d, %Y")
 end
 
+def init_client
+  @client = Twitter::REST::Client.new do |config|
+    config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
+    config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
+    config.access_token        = ENV['TWITTER_ACCESS_TOKEN']
+    config.access_token_secret = ENV['TWITTER_ACCESS_SECRET']
+  end
+end
+
 def summary_text(makers_array)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join(' ')} " \

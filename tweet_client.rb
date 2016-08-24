@@ -11,18 +11,14 @@ require_relative 'utils'
 # show table on server
 
 def run
-  client = Twitter::REST::Client.new do |config|
-    config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
-    config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
-    config.access_token        = ENV['TWITTER_ACCESS_TOKEN']
-    config.access_token_secret = ENV['TWITTER_ACCESS_SECRET']
-  end
-
   # TODO
   # add hunters and makers to list
-  # p client.list_members('top-makers', count: 5000)
+  # p @client.list_members('top-makers', count: 5000)
   #   .to_h[:users].map { |u| u[:screen_name] }
-  # client.add_list_members('top-makers', ['janklimo'])
+  # @client.add_list_members('top-makers', ['janklimo'])
+
+  # initiates twitter client as @client
+  init_client
 
   date = (Date.today - 1).to_s
   response =
@@ -42,16 +38,16 @@ def run
     img = image_kit.to_file("rank_#{rank}_img.jpg")
 
     # hunter tweet
-    client.update_with_media(hunter_text(hunter, rank, url), img)
+    @client.update_with_media(hunter_text(hunter, rank, url), img)
 
     # makers tweet
     unless makers.empty?
-      client.update_with_media(makers_text(makers, rank, url), img)
+      @client.update_with_media(makers_text(makers, rank, url), img)
     end
 
     # Summary tweet
     if rank == 1
-      client.update_with_media(summary_text(entry_data['makers']), img)
+      @client.update_with_media(summary_text(entry_data['makers']), img)
     end
   end
 end
