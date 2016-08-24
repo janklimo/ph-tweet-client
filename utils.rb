@@ -1,5 +1,5 @@
 ACTIONS = ['👍', '👏']
-THINGS = ['🌟', '🏆', '🏅', '💯', '🚀', '🎉', '😎', '😻']
+THINGS = ['🌟', '🏆', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘']
 DRINKS = ['🍾', '🍻']
 WORDS = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
          'Like a boss', 'Whoa', 'Wow']
@@ -55,4 +55,14 @@ def makers_text(makers, rank, url)
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join(' ')}"
   truncate(str, 110)
+end
+
+def add_list_members(hunters:, makers:)
+  existing_hunters = @client.list_members('top-hunters', count: 5000)
+    .to_h[:users].map { |u| u[:screen_name] }
+  @client.add_list_members('top-hunters', hunters - existing_hunters)
+
+  existing_makers = @client.list_members('top-makers', count: 5000)
+    .to_h[:users].map { |u| u[:screen_name] }
+  @client.add_list_members('top-makers', makers - existing_makers)
 end

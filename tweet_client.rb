@@ -11,19 +11,18 @@ require_relative 'utils'
 # show table on server
 
 def run
-  # TODO
-  # add hunters and makers to list
-  # p @client.list_members('top-makers', count: 5000)
-  #   .to_h[:users].map { |u| u[:screen_name] }
-  # @client.add_list_members('top-makers', ['janklimo'])
 
   # initiates twitter client as @client
   init_client
 
   date = (Date.today - 1).to_s
   response =
-    HTTParty.get("https://ph-tweet-server.herokuapp.com/charts/#{date}/data")
+    HTTParty.get("https://tophuntsdaily.herokuapp.com/charts/#{date}/data")
   entry_data = JSON.parse(response.body)
+
+  # add makers and hunters to respective twitter lists
+  add_list_members(hunters: entry_data['hunters'],
+                   makers: entry_data['makers'])
 
   entry_data['posts'].each do |post|
     rank = post['rank']
@@ -32,7 +31,7 @@ def run
     url = post['url']
 
     image_kit = IMGKit.new(
-      "https://ph-tweet-server.herokuapp.com/charts/#{date}?rank=#{rank}",
+      "https://tophuntsdaily.herokuapp.com/charts/#{date}?rank=#{rank}",
        zoom: 2, width: 2048, height: 1024
     )
     img = image_kit.to_file("rank_#{rank}_img.jpg")

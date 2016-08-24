@@ -5,13 +5,22 @@ describe '#run' do
   before do
     @date = (Date.today - 1).to_s
     allow(HTTParty).to receive(:get)
-      .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}/data")
+      .with("https://tophuntsdaily.herokuapp.com/charts/#{@date}/data")
       .and_return(double(body: ENTRY_DATA))
     allow_any_instance_of(Twitter::REST::Client)
       .to receive(:update_with_media)
+    allow_any_instance_of(Twitter::REST::Client)
+      .to receive(:add_list_members)
+    allow_any_instance_of(Twitter::REST::Client).to receive(:list_members)
+      .with("top-hunters", count: 5000)
+      .and_return(double(to_h: { users: [{ screen_name: 'iWozzy' }] }))
+    allow_any_instance_of(Twitter::REST::Client).to receive(:list_members)
+      .with("top-makers", count: 5000)
+      .and_return(double(to_h: { users: [{ screen_name: 'nainish' },
+                                         { screen_name: 'adrianeholter' }] }))
     (1..5).each do |i|
       allow(IMGKit).to receive(:new)
-        .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}?rank=#{i}",
+        .with("https://tophuntsdaily.herokuapp.com/charts/#{@date}?rank=#{i}",
       zoom: 2, width: 2048, height: 1024)
         .and_return(double(to_file: "rank_#{i}_img"))
     end
@@ -22,7 +31,7 @@ describe '#run' do
   end
   it 'retrieves entry data from server' do
     expect(HTTParty).to receive(:get)
-      .with("https://ph-tweet-server.herokuapp.com/charts/#{@date}/data")
+      .with("https://tophuntsdaily.herokuapp.com/charts/#{@date}/data")
     run
   end
   it 'sends the summary tweet just once' do
@@ -75,6 +84,18 @@ describe '#run' do
     expect_any_instance_of(Twitter::REST::Client)
       .to receive(:update_with_media)
       .with(/@photo.*for making the #5 product/, 'rank_5_img')
+      .exactly(:once)
+    run
+  end
+  it 'adds hunters and makers to twitter lists' do
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:add_list_members)
+      .with('top-makers', ["RyanKennedy", "seannieuwoudt", "bevmerriman",
+                            "v_ignatyev", "photomatt"])
+      .exactly(:once)
+    expect_any_instance_of(Twitter::REST::Client)
+      .to receive(:add_list_members)
+      .with('top-hunters', ["nagra__", "bentossell", "arunpattnaik"])
       .exactly(:once)
     run
   end
