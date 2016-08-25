@@ -6,10 +6,6 @@ require 'httparty'
 require 'imgkit'
 require_relative 'utils'
 
-# TODO:
-# update Twitter description
-# show table on server
-
 def run
 
   # initiates twitter client as @client
