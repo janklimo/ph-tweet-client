@@ -16,10 +16,6 @@ def run
     HTTParty.get("https://tophuntsdaily.herokuapp.com/charts/#{date}/data")
   entry_data = JSON.parse(response.body)
 
-  # add makers and hunters to respective twitter lists
-  add_list_members(hunters: entry_data['hunters'],
-                   makers: entry_data['makers'])
-
   entry_data['posts'].each do |post|
     rank = post['rank']
     hunter = post['hunter']
@@ -45,6 +41,10 @@ def run
       @client.update_with_media(summary_text(entry_data['makers']), img)
     end
   end
+
+  # add makers and hunters to respective twitter lists
+  add_list_members(hunters: entry_data['hunters'],
+                   makers: entry_data['makers'])
 end
 
 if $0 == __FILE__
