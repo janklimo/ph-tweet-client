@@ -29,16 +29,31 @@ def run
     img = image_kit.to_file("rank_#{rank}_img.jpg")
 
     # hunter tweet
-    @client.update_with_media(hunter_text(hunter, rank, url), img)
+    begin
+      @client.update_with_media(hunter_text(hunter, rank, url), img)
+    rescue Twitter::Error::RequestTimeout
+      sleep 15
+      retry
+    end
 
     # makers tweet
     unless makers.empty?
-      @client.update_with_media(makers_text(makers, rank, url), img)
+      begin
+        @client.update_with_media(makers_text(makers, rank, url), img)
+      rescue Twitter::Error::RequestTimeout
+        sleep 15
+        retry
+      end
     end
 
     # Summary tweet
     if rank == 1
-      @client.update_with_media(summary_text(entry_data['makers']), img)
+      begin
+        @client.update_with_media(summary_text(entry_data['makers']), img)
+      rescue Twitter::Error::RequestTimeout
+        sleep 15
+        retry
+      end
     end
   end
 
