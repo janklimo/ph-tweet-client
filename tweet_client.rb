@@ -16,7 +16,7 @@ def run
     HTTParty.get("https://tophuntsdaily.herokuapp.com/charts/#{date}/data")
   entry_data = JSON.parse(response.body)
 
-  entry_data['posts'].each do |post|
+  entry_data['posts'].sort_by { |p| p['rank'] }.each do |post|
     rank = post['rank']
     hunter = post['hunter']
     makers = post['makers']
@@ -27,6 +27,16 @@ def run
        zoom: 2, width: 2048, height: 1024
     )
     img = image_kit.to_file("rank_#{rank}_img.jpg")
+
+    # Summary tweet
+    if rank == 1
+      begin
+        @client.update_with_media(summary_text(entry_data['makers']), img)
+      rescue Twitter::Error::RequestTimeout
+        sleep 15
+        retry
+      end
+    end
 
     # hunter tweet
     begin
@@ -40,16 +50,6 @@ def run
     unless makers.empty?
       begin
         @client.update_with_media(makers_text(makers, rank, url), img)
-      rescue Twitter::Error::RequestTimeout
-        sleep 15
-        retry
-      end
-    end
-
-    # Summary tweet
-    if rank == 1
-      begin
-        @client.update_with_media(summary_text(entry_data['makers']), img)
       rescue Twitter::Error::RequestTimeout
         sleep 15
         retry
