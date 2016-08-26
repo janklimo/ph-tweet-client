@@ -33,7 +33,7 @@ end
 
 def summary_text(makers_array)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
-  str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join(' ')} " \
+  str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
     "Products by #{handles} #{ACTIONS.sample}"
   truncate(str, 110)
 end
@@ -43,7 +43,7 @@ def hunter_text(hunter, rank, url)
   str = "#{handle} #{WORDS.sample}! #{ACTIONS.sample} for hunting " \
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
-    "#{shorten(url)} #{THINGS.sample(2).join(' ')}"
+    "#{shorten(url)} #{THINGS.sample(2).join}"
   truncate(str, 110)
 end
 
@@ -53,7 +53,7 @@ def makers_text(makers, rank, url)
   str = "#{handles} #{WORDS.sample}! #{ACTIONS.sample} for making " \
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
-    "#{shorten(url)} #{THINGS.sample(2).join(' ')}"
+    "#{shorten(url)} #{THINGS.sample(2).join}"
   truncate(str, 110)
 end
 

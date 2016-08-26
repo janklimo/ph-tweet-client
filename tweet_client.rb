@@ -7,7 +7,6 @@ require 'imgkit'
 require_relative 'utils'
 
 def run
-
   # initiates twitter client as @client
   init_client
 
@@ -30,36 +29,21 @@ def run
 
     # Summary tweet
     if rank == 1
-      begin
-        @client.update_with_media(summary_text(entry_data['makers']), img)
-      rescue Twitter::Error::RequestTimeout
-        sleep 15
-        retry
-      end
+      @client.update_with_media(summary_text(entry_data['makers']), img)
+      # add makers and hunters to respective twitter lists
+      add_list_members(hunters: entry_data['hunters'],
+                       makers: entry_data['makers'])
     end
 
     # hunter tweet
-    begin
-      @client.update_with_media(hunter_text(hunter, rank, url), img)
-    rescue Twitter::Error::RequestTimeout
-      sleep 15
-      retry
-    end
+    @client.update_with_media(hunter_text(hunter, rank, url), img)
 
     # makers tweet
     unless makers.empty?
-      begin
-        @client.update_with_media(makers_text(makers, rank, url), img)
-      rescue Twitter::Error::RequestTimeout
-        sleep 15
-        retry
-      end
+      @client.update_with_media(makers_text(makers, rank, url), img)
     end
   end
 
-  # add makers and hunters to respective twitter lists
-  add_list_members(hunters: entry_data['hunters'],
-                   makers: entry_data['makers'])
 end
 
 if $0 == __FILE__
