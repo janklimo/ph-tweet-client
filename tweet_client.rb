@@ -6,7 +6,7 @@ require 'httparty'
 require 'imgkit'
 require_relative 'utils'
 
-def run
+def run(subject:, rank: 1)
   # initiates twitter client as @client
   init_client
 
@@ -15,37 +15,37 @@ def run
     HTTParty.get("https://tophuntsdaily.herokuapp.com/charts/#{date}/data")
   entry_data = JSON.parse(response.body)
 
-  entry_data['posts'].sort_by { |p| p['rank'] }.each do |post|
-    rank = post['rank']
-    hunter = post['hunter']
-    makers = post['makers']
-    url = post['url']
+  post = entry_data['posts'].find { |p| p['rank'] == rank }
+  rank = post['rank']
+  hunter = post['hunter']
+  makers = post['makers']
+  url = post['url']
 
-    image_kit = IMGKit.new(
-      "https://tophuntsdaily.herokuapp.com/charts/#{date}?rank=#{rank}",
-       zoom: 2, width: 2048, height: 1024
-    )
-    img = image_kit.to_file("rank_#{rank}_img.jpg")
+  image_kit = IMGKit.new(
+    "https://tophuntsdaily.herokuapp.com/charts/#{date}?rank=#{rank}",
+    zoom: 2, width: 2048, height: 1024
+  )
+  img = image_kit.to_file("rank_#{rank}_img.jpg")
 
-    # Summary tweet
-    if rank == 1
-      @client.update_with_media(summary_text(entry_data['makers']), img)
-      # add makers and hunters to respective twitter lists
-      add_list_members(hunters: entry_data['hunters'],
-                       makers: entry_data['makers'])
-    end
-
+  case subject
+  when 'summary'
+    # send summary tweet
+    @client.update_with_media(summary_text(entry_data['makers']), img)
+    # add makers and hunters to respective twitter lists
+    add_list_members(hunters: entry_data['hunters'],
+                     makers: entry_data['makers'])
+  when 'hunter'
     # hunter tweet
     @client.update_with_media(hunter_text(hunter, rank, url), img)
-
+  when 'makers'
     # makers tweet
     unless makers.empty?
       @client.update_with_media(makers_text(makers, rank, url), img)
     end
   end
-
 end
 
 if $0 == __FILE__
-  run
+  raise ArgumentError, "Usage: #{$0} subject rank" unless ARGV.length > 0
+  run(subject: ARGV[0], rank: ARGV[1].to_i)
 end

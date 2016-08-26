@@ -25,79 +25,111 @@ describe '#run' do
         .and_return(double(to_file: "rank_#{i}_img"))
     end
   end
+  it 'throws an error if no params are given' do
+    expect{ run }.to raise_error ArgumentError
+  end
   it 'initiates twitter client' do
     expect(Twitter::REST::Client).to receive(:new).and_call_original
-    run
+    run(subject: 'summary')
   end
   it 'retrieves entry data from server' do
     expect(HTTParty).to receive(:get)
       .with("https://tophuntsdaily.herokuapp.com/charts/#{@date}/data")
-    run
+    run(subject: 'summary')
   end
-  it 'sends the summary tweet just once' do
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/#TopHunts.*@producthunt.*RyanKennedy/, 'rank_1_img')
-      .exactly(:once)
-    run
+  context 'summary' do
+    it 'sends the summary tweet' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/#TopHunts.*@producthunt.*RyanKennedy/, 'rank_1_img')
+        .exactly(:once)
+      run(subject: 'summary')
+    end
+    it 'adds hunters and makers to twitter lists' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:add_list_members)
+        .with('top-makers', ["RyanKennedy", "seannieuwoudt", "bevmerriman",
+                             "v_ignatyev", "photomatt"])
+        .exactly(:once)
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:add_list_members)
+        .with('top-hunters', ["nagra__", "bentossell", "arunpattnaik"])
+        .exactly(:once)
+      run(subject: 'summary')
+    end
   end
-  it 'sends tweets to hunters' do
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@nagra.*for hunting the #1 product/, 'rank_1_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@iWozzy.*for hunting the #2 product/, 'rank_2_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@bentossel.*for hunting the #3 product/, 'rank_3_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@v_ignatyev.*for hunting the #4 product/, 'rank_4_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@arunpattnaik.*for hunting the #5 product/, 'rank_5_img')
-      .exactly(:once)
-    run
+  context 'hunter' do
+    it 'sends a tweet to the hunter of #1 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@nagra.*for hunting the #1 product/, 'rank_1_img')
+        .exactly(:once)
+      run(subject: 'hunter', rank: 1)
+    end
+    it 'sends a tweet to the hunter of #2 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@iWozzy.*for hunting the #2 product/, 'rank_2_img')
+        .exactly(:once)
+      run(subject: 'hunter', rank: 2)
+    end
+    it 'sends a tweet to the hunter of #3 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@bentossel.*for hunting the #3 product/, 'rank_3_img')
+        .exactly(:once)
+      run(subject: 'hunter', rank: 3)
+    end
+    it 'sends a tweet to the hunter of #4 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@v_ignatyev.*for hunting the #4 product/, 'rank_4_img')
+        .exactly(:once)
+      run(subject: 'hunter', rank: 4)
+    end
+    it 'sends a tweet to the hunter of #5 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@arunpattnaik.*for hunting the #5 product/, 'rank_5_img')
+        .exactly(:once)
+      run(subject: 'hunter', rank: 5)
+    end
   end
-  it 'sends tweets to makers' do
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@adrianeholter.*for making the #1 product/, 'rank_1_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@Ryan.*nainish.*for making the #2 product/, 'rank_2_img')
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@seannie.*bevmer.*for making the #3 product/, 'rank_3_img')
-      .exactly(:once)
-    # no makers - no tweet
-    expect_any_instance_of(Twitter::REST::Client)
-      .not_to receive(:update_with_media)
-      .with(/for making the #3 product/, 'rank_4_img')
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:update_with_media)
-      .with(/@photo.*for making the #5 product/, 'rank_5_img')
-      .exactly(:once)
-    run
-  end
-  it 'adds hunters and makers to twitter lists' do
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:add_list_members)
-      .with('top-makers', ["RyanKennedy", "seannieuwoudt", "bevmerriman",
-                            "v_ignatyev", "photomatt"])
-      .exactly(:once)
-    expect_any_instance_of(Twitter::REST::Client)
-      .to receive(:add_list_members)
-      .with('top-hunters', ["nagra__", "bentossell", "arunpattnaik"])
-      .exactly(:once)
-    run
+  context 'makers' do
+    it 'sends a tweet to the makers of #1 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@adrianeholter.*for making the #1 product/, 'rank_1_img')
+        .exactly(:once)
+      run(subject: 'makers', rank: 1)
+    end
+    it 'sends a tweet to the makers of #2 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@Ryan.*nainish.*for making the #2 product/, 'rank_2_img')
+        .exactly(:once)
+      run(subject: 'makers', rank: 2)
+    end
+    it 'sends a tweet to the makers of #3 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@seannie.*bevmer.*for making the #3 product/, 'rank_3_img')
+        .exactly(:once)
+      run(subject: 'makers', rank: 3)
+    end
+    it 'sends no tweets for #4 post - no makers' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .not_to receive(:update_with_media)
+        .with(/for making the #3 product/, 'rank_4_img')
+      run(subject: 'makers', rank: 4)
+    end
+    it 'sends a tweet to the makers of #5 post' do
+      expect_any_instance_of(Twitter::REST::Client)
+        .to receive(:update_with_media)
+        .with(/@photo.*for making the #5 product/, 'rank_5_img')
+        .exactly(:once)
+      run(subject: 'makers', rank: 5)
+    end
   end
 end
 
