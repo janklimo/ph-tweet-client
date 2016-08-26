@@ -25,11 +25,11 @@ end
 
 describe '#summary_text' do
   it 'renders the text' do
-    expect(summary_text(['a', 'b']).length).to be <= 115
+    expect(summary_text(['a', 'b']).length).to be <= 130
   end
   it 'truncates a really long list of makers' do
     makers = (1..15).map { |i| "maker#{i}" }
-    expect(summary_text(makers).length).to be <= 110
+    expect(summary_text(makers).length).to be <= 130
     expect(summary_text(makers)).to include Time.now.year.to_s
     expect(summary_text(makers)).to include '@maker2'
   end
