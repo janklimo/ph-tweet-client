@@ -36,10 +36,12 @@ def run(subject:, rank: 1)
                      makers: entry_data['makers'])
   when 'hunter'
     # hunter tweet
-    @client.update_with_media(hunter_text(hunter, rank, url), img)
+    if hunter.length > 0
+      @client.update_with_media(hunter_text(hunter, rank, url), img)
+    end
   when 'makers'
     # makers tweet
-    unless makers.empty?
+    if makers.any?
       @client.update_with_media(makers_text(makers, rank, url), img)
     end
   end

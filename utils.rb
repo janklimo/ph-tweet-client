@@ -49,7 +49,7 @@ end
 
 def makers_text(makers, rank, url)
   return if makers.none?
-  handles = makers.map{ |m| "@#{m}" }.join(' ')
+  handles = makers.map{ |m| "@#{m}" }.first(3).join(' ')
   str = "#{handles} #{WORDS.sample}! #{ACTIONS.sample} for making " \
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \

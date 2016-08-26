@@ -87,11 +87,9 @@ describe '#run' do
         .exactly(:once)
       run(subject: 'hunter', rank: 4)
     end
-    it 'sends a tweet to the hunter of #5 post' do
+    it 'sends nothing as the hunter of #5 post has no twitter' do
       expect_any_instance_of(Twitter::REST::Client)
-        .to receive(:update_with_media)
-        .with(/@arunpattnaik.*for hunting the #5 product/, 'rank_5_img')
-        .exactly(:once)
+        .not_to receive(:update_with_media)
       run(subject: 'hunter', rank: 5)
     end
   end
@@ -120,7 +118,6 @@ describe '#run' do
     it 'sends no tweets for #4 post - no makers' do
       expect_any_instance_of(Twitter::REST::Client)
         .not_to receive(:update_with_media)
-        .with(/for making the #3 product/, 'rank_4_img')
       run(subject: 'makers', rank: 4)
     end
     it 'sends a tweet to the makers of #5 post' do
@@ -164,7 +161,7 @@ ENTRY_DATA = <<JSON
       },
       {
          "id":10,
-         "hunter":"arunpattnaik",
+         "hunter":"",
          "makers":[
             "photomatt"
          ],
