@@ -30,12 +30,12 @@ describe '#run' do
   end
   it 'initiates twitter client' do
     expect(Twitter::REST::Client).to receive(:new).and_call_original
-    run(subject: 'summary')
+    run(subject: 'summary', rank: 1)
   end
   it 'retrieves entry data from server' do
     expect(HTTParty).to receive(:get)
       .with("https://tophuntsdaily.herokuapp.com/charts/#{@date}/data")
-    run(subject: 'summary')
+    run(subject: 'summary', rank: 1)
   end
   context 'summary' do
     it 'sends the summary tweet' do
@@ -43,7 +43,7 @@ describe '#run' do
         .to receive(:update_with_media)
         .with(/#TopHunts.*@producthunt.*RyanKennedy/, 'rank_1_img')
         .exactly(:once)
-      run(subject: 'summary')
+      run(subject: 'summary', rank: 1)
     end
     it 'adds hunters and makers to twitter lists' do
       expect_any_instance_of(Twitter::REST::Client)
@@ -55,7 +55,7 @@ describe '#run' do
         .to receive(:add_list_members)
         .with('top-hunters', ["nagra__", "bentossell", "arunpattnaik"])
         .exactly(:once)
-      run(subject: 'summary')
+      run(subject: 'summary', rank: 1)
     end
   end
   context 'hunter' do

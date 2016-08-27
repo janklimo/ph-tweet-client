@@ -6,7 +6,7 @@ require 'httparty'
 require 'imgkit'
 require_relative 'utils'
 
-def run(subject:, rank: 1)
+def run(subject:, rank:)
   # initiates twitter client as @client
   init_client
 
@@ -49,5 +49,5 @@ end
 
 if $0 == __FILE__
   raise ArgumentError, "Usage: #{$0} subject rank" unless ARGV.length > 0
-  run(subject: ARGV[0], rank: ARGV[1].to_i)
+  run(subject: ARGV[0], rank: (ARGV[1] || 1).to_i)
 end
