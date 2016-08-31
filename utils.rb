@@ -35,7 +35,7 @@ def summary_text(makers_array)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
     "Products by #{handles} #{ACTIONS.sample}"
-  truncate(str, 125)
+  truncate(str, 120)
 end
 
 def hunter_text(hunter, rank, url)
