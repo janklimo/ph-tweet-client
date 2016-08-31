@@ -5,7 +5,6 @@ require 'twitter'
 require 'httparty'
 require 'imgkit'
 require_relative 'utils'
-require 'logger'
 
 def run(subject:, rank:)
   # initiates twitter client as @client
