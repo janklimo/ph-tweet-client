@@ -32,10 +32,16 @@ def init_client
 end
 
 def summary_text(makers_array)
+  logger = Logger.new(STDOUT)
+  logger.level = Logger::INFO
+
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
     "Products by #{handles} #{ACTIONS.sample}"
-  truncate(str, 120)
+  output = truncate(str, 120)
+  logger.info output
+
+  output
 end
 
 def hunter_text(hunter, rank, url)
