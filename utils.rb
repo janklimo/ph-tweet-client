@@ -3,6 +3,7 @@ THINGS = ['🌟', '🏆', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘'
 DRINKS = ['🍾', '🍻']
 WORDS = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
          'Like a boss', 'Whoa', 'Wow']
+LIMIT = 130
 
 # loosely borrowing this from Rails :)
 def truncate(str, truncate_at, options = {})
@@ -35,7 +36,7 @@ def summary_text(makers_array)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
     "Products by #{handles} #{ACTIONS.sample}"
-  truncate(str, 110)
+  truncate(str, LIMIT)
 end
 
 def hunter_text(hunter, rank, url)
@@ -44,7 +45,7 @@ def hunter_text(hunter, rank, url)
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join}"
-  truncate(str, 110)
+  truncate(str, LIMIT)
 end
 
 def makers_text(makers, rank, url)
@@ -54,7 +55,7 @@ def makers_text(makers, rank, url)
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join}"
-  truncate(str, 110)
+  truncate(str, LIMIT)
 end
 
 def add_list_members(hunters:, makers:)

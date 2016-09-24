@@ -25,11 +25,11 @@ end
 
 describe '#summary_text' do
   it 'renders the text' do
-    expect(summary_text(['a', 'b']).length).to be <= 110
+    expect(summary_text(['a', 'b']).length).to be <= LIMIT
   end
   it 'truncates a really long list of makers' do
     makers = (1..15).map { |i| "maker#{i}" }
-    expect(summary_text(makers).length).to be <= 110
+    expect(summary_text(makers).length).to be <= LIMIT
     expect(summary_text(makers)).to include Time.now.year.to_s
     expect(summary_text(makers)).to include '@maker2'
   end
@@ -37,11 +37,12 @@ end
 
 describe '#hunter_text' do
   it 'renders the right text' do
-    text = hunter_text('jon', '3', 'www.link.com?param')
+    text = hunter_text('jon', '3',
+                       'https://www.producthunt.com/tech/plug-3?utm_campaign=producthunt-api')
     expect(text).to include '@jon'
     expect(text).to include 'for hunting'
     expect(text).to include '#3'
-    expect(text).to match(/www.link.com\s/)
+    expect(text).to match(/https:\/\/www.producthunt.com\/tech\/plug-3\s/)
   end
 end
 
