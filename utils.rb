@@ -45,17 +45,19 @@ def hunter_text(hunter, rank, url)
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join}"
-  truncate(str, LIMIT)
+  # URLs don't count towards the limit any more
+  truncate(str, LIMIT + shorten(url).length)
 end
 
 def makers_text(makers, rank, url)
   return if makers.none?
-  handles = makers.map{ |m| "@#{m}" }.first(3).join(' ')
+  handles = makers.map{ |m| "@#{m}" }.first(4).join(' ')
   str = "#{handles} #{WORDS.sample}! #{ACTIONS.sample} for making " \
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join}"
-  truncate(str, LIMIT)
+  # URLs don't count towards the limit any more
+  truncate(str, LIMIT + shorten(url).length)
 end
 
 def add_list_members(hunters:, makers:)
