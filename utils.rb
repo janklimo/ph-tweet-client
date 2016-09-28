@@ -3,7 +3,7 @@ THINGS = ['🌟', '🏆', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘'
 DRINKS = ['🍾', '🍻']
 WORDS = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
          'Like a boss', 'Whoa', 'Wow']
-LIMIT = 130
+LIMIT = 120
 
 # loosely borrowing this from Rails :)
 def truncate(str, truncate_at, options = {})
