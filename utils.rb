@@ -34,9 +34,12 @@ end
 
 def summary_text(makers_array, winner_url)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
-  str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
-    "Products by #{handles}"
-  "#{truncate(str, LIMIT)} 🏆 #{shorten(winner_url)}"
+  text_1 = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} Products by "
+  text_3 = " 🏆 "
+  limit_for_handles = 140 - [text_1, text_3].join.length - 23
+  resp = "#{text_1}#{truncate(handles, limit_for_handles)}#{text_3}#{winner_url}"
+  p resp
+  resp
 end
 
 def hunter_text(hunter, rank, url)
