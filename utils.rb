@@ -1,5 +1,5 @@
 ACTIONS = ['👍', '👏']
-THINGS = ['🌟', '🏆', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘']
+THINGS = ['🌟', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘']
 DRINKS = ['🍾', '🍻']
 WORDS = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
          'Like a boss', 'Whoa', 'Wow']
@@ -32,11 +32,11 @@ def init_client
   end
 end
 
-def summary_text(makers_array)
+def summary_text(makers_array, winner_url)
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   str = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} " \
-    "Products by #{handles} #{ACTIONS.sample}"
-  truncate(str, LIMIT)
+    "Products by #{handles}"
+  "#{truncate(str, LIMIT)} 🏆 #{shorten(winner_url)}"
 end
 
 def hunter_text(hunter, rank, url)

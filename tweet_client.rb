@@ -30,7 +30,7 @@ def run(subject:, rank:)
   case subject
   when 'summary'
     # send summary tweet
-    @client.update_with_media(summary_text(entry_data['makers']), img)
+    @client.update_with_media(summary_text(entry_data['makers'], url), img)
     # add makers and hunters to respective twitter lists
     add_list_members(hunters: entry_data['hunters'],
                      makers: entry_data['makers'])

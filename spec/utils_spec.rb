@@ -24,14 +24,13 @@ describe '#shorten' do
 end
 
 describe '#summary_text' do
-  it 'renders the text' do
-    expect(summary_text(['a', 'b']).length).to be <= LIMIT
-  end
   it 'truncates a really long list of makers' do
     makers = (1..15).map { |i| "maker#{i}" }
-    expect(summary_text(makers).length).to be <= LIMIT
-    expect(summary_text(makers)).to include Time.now.year.to_s
-    expect(summary_text(makers)).to include '@maker2'
+    url = 'http://www.google.com'
+    expect(summary_text(makers, url)).to include Time.now.year.to_s
+    expect(summary_text(makers, url)).to include '@maker2'
+    expect(summary_text(makers, url)).not_to include '@maker15'
+    expect(summary_text(makers, url)).to include 'google.com'
   end
 end
 
