@@ -3,7 +3,9 @@ THINGS = ['🌟', '🏅', '💯', '🚀', '🎉', '😎', '😻', '🤘']
 DRINKS = ['🍾', '🍻']
 WORDS = ['Woot', 'Yay', 'Nice', 'Sweet', 'Radical', 'Hurray', 'Epic',
          'Like a boss', 'Whoa', 'Wow']
-LIMIT = 120
+# every URL longer than 23 characters gets shortened to 23 characters
+# https://support.twitter.com/articles/78124
+URL_LENGTH = 23
 
 # loosely borrowing this from Rails :)
 def truncate(str, truncate_at, options = {})
@@ -32,35 +34,58 @@ def init_client
   end
 end
 
+# Daily summary tweet sent once. Example:
+# #TopHunts of Apr 13, 2017 on @producthunt 🤘🌟 Products by @halfdanj
+# @nookajones @andraskindler @zsedbal @bncbgr 🏆 https://www.producthunt.com/posts/dropunited
+# We attempt to fit as many makers in while keeping the rest of the tweet fixed
 def summary_text(makers_array, winner_url)
+  # 1. text
+  # 2. handles
+  # 3. text
+  # 4. URL
   handles = makers_array.map{ |m| "@#{m}" }.join(' ')
   text_1 = "#TopHunts of #{date_str} on @producthunt #{THINGS.sample(2).join} Products by "
   text_3 = " 🏆 "
-  limit_for_handles = 140 - [text_1, text_3].join.length - 23
-  resp = "#{text_1}#{truncate(handles, limit_for_handles)}#{text_3}#{winner_url}"
-  p resp
-  resp
+  limit_for_handles = 140 - [text_1, text_3].join.length - URL_LENGTH
+  tweet = "#{text_1}#{truncate(handles, limit_for_handles)}#{text_3}" \
+    "#{shorten(winner_url)}"
+  puts tweet
+  tweet
 end
 
+# A tweet sent to every hunter. Example:
+# @picsoung Epic! 👏 for hunting the #5 product of Apr 13, 2017 on @producthunt!
+# 🍻 https://www.producthunt.com/posts/facebook-for-slack-by-mailclark🤘🌟
+# this is only ever ~110 characters long so no need to truncate
 def hunter_text(hunter, rank, url)
   handle = "@#{hunter}"
-  str = "#{handle} #{WORDS.sample}! #{ACTIONS.sample} for hunting " \
+  tweet = "#{handle} #{WORDS.sample}! #{ACTIONS.sample} for hunting " \
     "the ##{rank} " \
     "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
     "#{shorten(url)} #{THINGS.sample(2).join}"
-  # URLs don't count towards the limit any more
-  truncate(str, LIMIT + shorten(url).length)
+  puts tweet
+  tweet
 end
 
+# This sends a tweet mentioning all the makers, so it's important to truncate
+# their list while keeping the rest of the tweet fixed. Example:
+# @andraskindler @zsedbal @bncbgr Like a boss! 👍 for making the #3 product of
+# Apr 13, 2017 on @producthunt! 🍻 https://www.producthunt.com/posts/hpstr 😎😻
 def makers_text(makers, rank, url)
+  # 1. handles
+  # 2. text
+  # 3. URL
+  # 4. text
   return if makers.none?
-  handles = makers.map{ |m| "@#{m}" }.first(4).join(' ')
-  str = "#{handles} #{WORDS.sample}! #{ACTIONS.sample} for making " \
-    "the ##{rank} " \
-    "product of #{date_str} on @producthunt! #{DRINKS.sample} " \
-    "#{shorten(url)} #{THINGS.sample(2).join}"
-  # URLs don't count towards the limit any more
-  truncate(str, LIMIT + shorten(url).length)
+  handles = makers.map{ |m| "@#{m}" }.join(' ')
+  text_2 = " #{WORDS.sample}! #{ACTIONS.sample} for making the ##{rank} " \
+    "product of #{date_str} on @producthunt! #{DRINKS.sample} "
+  text_4 = " #{THINGS.sample(2).join}"
+  limit_for_handles = 140 - [text_2, text_4].join.length - URL_LENGTH
+  tweet = "#{truncate(handles, limit_for_handles)}#{text_2}" \
+    "#{shorten(url)}#{text_4}"
+  puts tweet
+  tweet
 end
 
 def add_list_members(hunters:, makers:)

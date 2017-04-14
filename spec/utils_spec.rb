@@ -41,7 +41,6 @@ describe '#hunter_text' do
     expect(text).to include '@jon'
     expect(text).to include 'for hunting'
     expect(text).to include '#3'
-    expect(text.length).to be <= (LIMIT + shorten(url).length)
     expect(text).to match(/https:\/\/www.producthunt.com\/tech\/plug-3\s/)
   end
 end
@@ -52,9 +51,9 @@ describe '#makers_text' do
     url = 'https://www.producthunt.com/tech/plug-3?utm_campaign=producthunt-api'
     text = makers_text(makers, '3', url)
     expect(text).to include '@maker1 @maker2 @maker3 @maker4'
+    expect(text).not_to include '@maker14'
     expect(text).to include 'for making'
     expect(text).to include '#3'
-    expect(text.length).to be <= (LIMIT + shorten(url).length)
     expect(text).to match(/https:\/\/www.producthunt.com\/tech\/plug-3\s/)
   end
   it 'returns empty string if no makers are given' do
